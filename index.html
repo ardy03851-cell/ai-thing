@@ -3,493 +3,607 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>3D iPad Pocket Fishing - Ominous Night</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Query — Temu Search Distiller</title>
   <style>
+    :root {
+      --ink: #0b0c10;
+      --ink-2: #121319;
+      --panel: #16181f;
+      --panel-2: #1c1f28;
+      --border: #262a35;
+      --border-soft: #1f222b;
+      --text: #ebecf0;
+      --muted: #7d818f;
+      --muted-2: #565a66;
+      --signal: #ff7a3d;
+      --signal-dim: #c9591f;
+      --cyan: #5fd4d6;
+      --mono: "SF Mono", "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
     * {
       box-sizing: border-box;
-      user-select: none;
-      -webkit-user-select: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    body {
       margin: 0;
-      padding: 0;
-    }
-
-    body,
-    html {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background-color: #020617;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    #canvas-container {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
-
-    /* UI Layer */
-    #ui-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10;
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 20px;
-    }
-
-    .interactive {
-      pointer-events: auto;
-    }
-
-    #ui-bar {
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-      background: rgba(2, 6, 23, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 16px;
-      padding: 12px 20px;
-      display: flex;
-      justify-content: space-between;
-      border: 1px solid rgba(239, 68, 68, 0.15);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-    }
-
-    .ui-text {
-      font-size: 20px;
-      font-weight: bold;
-      color: #cbd5e1;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-    }
-
-    /* Textured Action Button */
-    #action-btn {
-      width: 85%;
-      max-width: 340px;
-      height: 75px;
-      margin: 0 auto 15px auto;
-      background-image: url('textures/button-cast-line.png');
-      background-size: cover;
-      background-position: center;
-      background-color: #1e293b; /* Fallback dark slate */
-      border: 2px solid #3f3f46;
-      border-radius: 20px;
-      color: #f1f5f9;
-      font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.1);
-      transition: transform 0.05s, filter 0.2s;
-    }
-
-    #action-btn:active {
-      transform: scale(0.95);
-      filter: brightness(0.8);
-    }
-
-    /* Inventory Table UI Overlay */
-    #shop-overlay {
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-      background: rgba(15, 23, 42, 0.6);
-      border-radius: 12px;
-      padding: 10px;
-      text-align: center;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse 800px 500px at 50% -10%, rgba(255, 122, 61, 0.08), transparent),
+        radial-gradient(ellipse 600px 400px at 90% 100%, rgba(95, 212, 214, 0.05), transparent),
+        var(--ink);
+      color: var(--text);
+      font-family: var(--sans);
       display: flex;
       justify-content: center;
+      padding: 56px 18px 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 620px;
+    }
+
+    /* ---------- header ---------- */
+    .eyebrow {
+      display: flex;
       align-items: center;
-      gap: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      margin-bottom: 14px;
     }
 
-    .fish-tag {
-      background: #1e293b;
-      color: #cbd5e1;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 14px;
-      border: 1px solid #334155;
+    .eyebrow .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 0 3px rgba(255, 122, 61, 0.15);
     }
 
-    #sell-btn {
-      background: #7c2d12;
-      color: #fdba74;
-      border: 1px solid #9a3412;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: bold;
-      font-size: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    h1 {
+      font-size: 28px;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      margin: 0 0 6px;
+      line-height: 1.2;
     }
 
-    #sell-btn:active {
-      transform: scale(0.95);
+    h1 span {
+      color: var(--muted);
+      font-weight: 450;
     }
 
-    /* Ominous Floating text feedback */
-    .toast {
+    p.sub {
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.5;
+      margin: 0 0 28px;
+      max-width: 46ch;
+    }
+
+    /* ---------- input ---------- */
+    .input-shell {
+      position: relative;
+      border-radius: 14px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input-shell:focus-within {
+      border-color: var(--signal-dim);
+      box-shadow: 0 0 0 4px rgba(255, 122, 61, 0.08);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 88px;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      padding: 16px 16px 50px;
+      font-size: 15.5px;
+      font-family: var(--sans);
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    textarea::placeholder {
+      color: var(--muted-2);
+    }
+
+    textarea:focus {
+      outline: none;
+    }
+
+    .input-bar {
       position: absolute;
-      top: 35%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #fff;
-      font-size: 30px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 0 0 12px rgba(0, 0, 0, 1), 0 0 8px rgba(239, 68, 68, 0.4);
-      animation: floatUp 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      left: 12px;
+      right: 12px;
+      bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    @keyframes floatUp {
-      0% {
-        transform: translate(-50%, -30%) scale(0.85);
-        opacity: 0;
-      }
-      15% {
+    .hint {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--muted-2);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    kbd {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      color: var(--muted);
+    }
+
+    button#go {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--signal);
+      color: #1a0e06;
+      border: none;
+      border-radius: 9px;
+      padding: 8px 14px;
+      font-size: 13.5px;
+      font-weight: 650;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+
+    button#go:hover:not(:disabled) {
+      filter: brightness(1.08);
+    }
+
+    button#go:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    button#go:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    button#go svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ---------- distillation strip ---------- */
+    #distill {
+      margin-top: 18px;
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      min-height: 30px;
+    }
+
+    #distill.active {
+      display: flex;
+    }
+
+    .distill-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted-2);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-right: 2px;
+    }
+
+    .chip {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--cyan);
+      padding: 4px 10px;
+      border-radius: 100px;
+      opacity: 0;
+      transform: translateY(4px) scale(0.95);
+      animation: chipIn 0.35s ease forwards;
+    }
+
+    @keyframes chipIn {
+      to {
         opacity: 1;
+        transform: translateY(0) scale(1);
       }
-      100% {
-        transform: translate(-50%, -120%) scale(1.05);
-        opacity: 0;
+    }
+
+    /* ---------- status ---------- */
+    #status {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+
+    #status.error {
+      color: #ff6b6b;
+    }
+
+    #status .spin {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
       }
+    }
+
+    /* ---------- results ---------- */
+    #results {
+      margin-top: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 16px 16px 18px;
+      text-decoration: none;
+      color: var(--text);
+      display: block;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: cardIn 0.4s ease forwards;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--signal);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .card:hover {
+      border-color: var(--signal-dim);
+      background: var(--panel-2);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    @keyframes cardIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card .query {
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .card .why {
+      margin-top: 7px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .card .open {
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--signal);
+      font-weight: 600;
+      font-family: var(--mono);
+    }
+
+    .card .open svg {
+      width: 12px;
+      height: 12px;
+      transition: transform 0.15s ease;
+    }
+
+    .card:hover .open svg {
+      transform: translate(2px, -2px);
+    }
+
+    .icon-arrow {
+      width: 16px;
+      height: 16px;
+      color: var(--muted-2);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ---------- empty state ---------- */
+    #empty {
+      margin-top: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      color: var(--muted-2);
+      gap: 10px;
+    }
+
+    #empty svg {
+      width: 28px;
+      height: 28px;
+      opacity: 0.5;
+    }
+
+    #empty p {
+      font-size: 13px;
+      margin: 0;
+      max-width: 32ch;
+      line-height: 1.5;
     }
   </style>
 </head>
 
 <body>
+  <div class="wrap">
 
-  <div id="canvas-container"></div>
+    <div class="eyebrow"><span class="dot"></span>private tool · query distiller</div>
+    <h1>Find it on Temu<span>, faster.</span></h1>
+    <p class="sub">Describe what you're after in your own words. The model distills it into sharp, specific search
+      strings and links straight into Temu's results.</p>
 
-  <div id="ui-layer">
-    <div id="ui-bar">
-      <div class="ui-text" id="gold-display">🪙 Gold: 0</div>
-      <div class="ui-text" id="status-display">💀 The Depths Await</div>
-    </div>
-
-    <div id="alert-container"></div>
-
-    <div style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
-      <button id="action-btn" class="interactive">CAST LINE</button>
-
-      <div id="shop-overlay">
-        <span id="inv-status" style="color: #64748b; font-style: italic;">The altar is bare...</span>
-        <button id="sell-btn" class="interactive" style="display: none;">OFFER CATCH</button>
+    <div class="input-shell">
+      <textarea id="prompt" placeholder="e.g. a small quiet desk fan for a dorm room, not flimsy"></textarea>
+      <div class="input-bar">
+        <span class="hint"><kbd>⌘</kbd><kbd>↵</kbd> to run</span>
+        <button id="go">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        Distill
+      </button>
       </div>
     </div>
+
+    <div id="distill"><span class="distill-label">extracting</span></div>
+    <div id="status"></div>
+    <div id="results"></div>
+
+    <div id="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+        stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7" />
+        <path d="M21 21l-4.3-4.3" />
+      </svg>
+      <p>Nothing distilled yet. Describe an item above and run it.</p>
+    </div>
+
   </div>
 
   <script>
-    // --- Game Logic Variables ---
-    let gold = 0;
-    let inventory = [];
-    let gameState = "idle"; 
-    let biteTimeout = null;
-    let windowTimeout = null;
+    const OPENROUTER_API_KEY = "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";
+const MODEL = "nvidia/nemotron-3-nano-30b-a3b:free";
 
-    const fishTypes = [
-        { name: "👁️ Blind Eye", value: 20 },
-        { name: "🐟 Abyssal Dace", value: 45 },
-        { name: "🦑 Spine-Squid", value: 90 },
-        { name: "Leviathan Shard", value: 300 }
-    ];
+const promptEl = document.getElementById('prompt');
+const goBtn = document.getElementById('go');
+const statusEl = document.getElementById('status');
+const resultsEl = document.getElementById('results');
+const distillEl = document.getElementById('distill');
+const emptyEl = document.getElementById('empty');
 
-    // --- 3D Engine Setup ---
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    
-    // Ominous deep night void fog setup
-    scene.background = new THREE.Color(0x010409); 
-    scene.fog = new THREE.FogExp2(0x010409, 0.12);
+const ICON_SPIN = `<svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 0 1 10 10"/></svg>`;
+const ICON_ARROW = `<svg class="icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>`;
+const ICON_OPEN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>`;
+const ICON_WARN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0"><path d="M12 9v4M12 17h.01M10.3 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0z"/></svg>`;
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 6.5, 7.5);
-    camera.lookAt(0, 0.8, -1.5);
+function temuUrl(query) {
+  return "https://www.temu.com/search_result.html?search_key=" + encodeURIComponent(query);
+}
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.8;
-    container.appendChild(renderer.domElement);
+function setStatus(html, isError) {
+  statusEl.innerHTML = html;
+  statusEl.className = isError ? "error" : "";
+}
 
-    // --- Ominous Lighting System ---
-    // Dim ambient moon/sky glow
-    const ambientLight = new THREE.AmbientLight(0x1e293b, 0.25);
-    scene.add(ambientLight);
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-    // Sickly, pale moonlight casting deep shadows
-    const moonLight = new THREE.DirectionalLight(0x38bdf8, 0.4);
-    moonLight.position.set(-8, 12, -4);
-    moonLight.castShadow = true;
-    moonLight.shadow.mapSize.width = 1024;
-    moonLight.shadow.mapSize.height = 1024;
-    scene.add(moonLight);
+// Pulls a few standout keywords from the raw prompt to animate as "extracted"
+// tokens while the real request is in flight — purely a perceived-speed cue.
+function quickKeywords(text) {
+  const stop = new Set(["a","an","the","for","and","with","that","this","but","not","very","really","kind","sort","of","to","in","on","is","are","want","need","looking","find","me","my","please","some","like","just"]);
+  return text
+    .replace(/[^\w\s-]/g, " ")
+    .split(/\s+/)
+    .filter(w => w.length > 2 && !stop.has(w.toLowerCase()))
+    .slice(0, 5);
+}
 
-    // Crimson light bleeding up from the deep water
-    const abyssLight = new THREE.PointLight(0x7f1d1d, 1.5, 12);
-    abyssLight.position.set(0, -1.5, -3);
-    scene.add(abyssLight);
+async function animateDistill(text) {
+  distillEl.innerHTML = '<span class="distill-label">extracting</span>';
+  distillEl.classList.add('active');
+  const words = quickKeywords(text);
+  for (const w of words) {
+    const chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.textContent = w.toLowerCase();
+    distillEl.appendChild(chip);
+    await sleep(90);
+  }
+}
 
-    // Single localized dim spotlight illuminating the sales table
-    const tableSpotlight = new THREE.SpotLight(0xfef08a, 2.0, 10, Math.PI / 6, 0.5, 1);
-    tableSpotlight.position.set(0, 5, 4);
-    tableSpotlight.target.position.set(0, 0.5, 4);
-    scene.add(tableSpotlight);
-    scene.add(tableSpotlight.target);
+function renderResults(items) {
+  emptyEl.style.display = 'none';
+  resultsEl.innerHTML = "";
+  items.forEach((item, i) => {
+    const a = document.createElement('a');
+    a.className = "card";
+    a.style.animationDelay = (i * 70) + "ms";
+    a.href = temuUrl(item.query);
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.innerHTML = `
+      <div class="card-top">
+        <div>
+          <div class="query">${item.query}</div>
+          <div class="why">${item.why || ""}</div>
+        </div>
+        ${ICON_ARROW}
+      </div>
+      <div class="open">${ICON_OPEN} Open on Temu</div>
+    `;
+    resultsEl.appendChild(a);
+  });
+}
 
-    // --- Create 3D Objects & Map Textures ---
-    const textureLoader = new THREE.TextureLoader();
+async function generateQueries(userPrompt) {
+  const systemPrompt = `You are an expert at writing Temu marketplace search queries.
+Given a description of what someone wants to buy, output 3 distinct, highly specific Temu search queries that would surface the best matching products.
+Use concrete product nouns, key attributes (size, material, use-case, style), and avoid vague words.
+Keep each query short (3-7 words), like an actual shopper would type into Temu's search bar.
+Respond ONLY with valid JSON, no markdown, no preamble, in this exact format:
+[{"query":"...","why":"..."},{"query":"...","why":"..."},{"query":"...","why":"..."}]
+"why" is a short 5-12 word reason this query is a strong angle.`;
 
-    // 1. Water (With requested water.png path adjustment)
-    const waterWaterTexture = textureLoader.load('textures/water.png', function(txt) {
-        txt.wrapS = THREE.RepeatWrapping;
-        txt.wrapT = THREE.RepeatWrapping;
-        txt.repeat.set(4, 4);
-    });
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + OPENROUTER_API_KEY
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ]
+    })
+  });
 
-    const waterGeo = new THREE.PlaneGeometry(60, 60);
-    const waterMat = new THREE.MeshStandardMaterial({ 
-        map: waterWaterTexture,
-        color: 0x0c1e36, // Deep ocean slate fallback base
-        roughness: 0.15, 
-        metalness: 0.4,
-        transparent: true,
-        opacity: 0.2
-    });
-    const water = new THREE.Mesh(waterGeo, waterMat);
-    water.rotation.x = -Math.PI / 2;
-    water.position.y = 0;
-    water.receiveShadow = true;
-    scene.add(water);
+  if (response.status === 429) {
+    let retryAfter = 5;
+    try {
+      const errJson = await response.json();
+      retryAfter = errJson?.error?.metadata?.retry_after_seconds || 5;
+    } catch (e) {}
+    const err = new Error("Rate limited upstream. Retrying in " + Math.ceil(retryAfter) + "s…");
+    err.isRateLimit = true;
+    err.retryAfter = retryAfter;
+    throw err;
+  }
 
-    // 2. The 3D Wooden Selling Table (With requested textures/table_wood.png routing)
-    const tableTexture = textureLoader.load('textures/table_wood.png', function(txt) {
-        txt.wrapS = THREE.RepeatWrapping;
-        txt.wrapT = THREE.RepeatWrapping;
-        txt.repeat.set(2, 1);
-    });
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error("API error " + response.status + ": " + errText);
+  }
 
-    const tableMaterial = new THREE.MeshStandardMaterial({
-        map: tableTexture,
-        color: 0x271c19, // Decayed, dark rotted wood fallback tint
-        roughness: 0.8,
-        metalness: 0.1
-    });
+  const data = await response.json();
+  const raw = data.choices?.[0]?.message?.content || "";
+  const cleaned = raw.replace(/```json|```/g, "").trim();
+  const parsed = JSON.parse(cleaned);
+  if (!Array.isArray(parsed)) throw new Error("Unexpected response shape");
+  return parsed;
+}
 
-    const tableGeo = new THREE.BoxGeometry(4.8, 1.2, 2.2);
-    const woodenTable = new THREE.Mesh(tableGeo, tableMaterial);
-    woodenTable.position.set(0, 0.6, 4); 
-    woodenTable.castShadow = true;
-    woodenTable.receiveShadow = true;
-    scene.add(woodenTable);
+async function handleGo() {
+  const userPrompt = promptEl.value.trim();
+  if (!userPrompt) {
+    setStatus(ICON_WARN + " Type what you're looking for first.", true);
+    return;
+  }
 
-    // 3. Eerie Bioluminescent Fishing Bobber
-    const bobberGeo = new THREE.SphereGeometry(0.22, 16, 16);
-    const bobberMat = new THREE.MeshStandardMaterial({ 
-        color: 0xef4444,
-        emissive: 0x991b1b,
-        emissiveIntensity: 0.6,
-        roughness: 0.3 
-    });
-    const bobber = new THREE.Mesh(bobberGeo, bobberMat);
-    bobber.position.set(0, -10, 0); 
-    scene.add(bobber);
+  goBtn.disabled = true;
+  resultsEl.innerHTML = "";
+  setStatus(ICON_SPIN + " Distilling your request…");
 
-    // Neon bobber aura glow light
-    const bobberLight = new THREE.PointLight(0xef4444, 0, 4);
-    scene.add(bobberLight);
+  // Fire the real request and the perceived-speed animation in parallel.
+  const animationPromise = animateDistill(userPrompt);
+  const maxRetries = 2;
+  let attempt = 0;
 
-    // --- UI & Touch Handling ---
-    const actionBtn = document.getElementById("action-btn");
-    const sellBtn = document.getElementById("sell-btn");
-    const goldDisplay = document.getElementById("gold-display");
-    const statusDisplay = document.getElementById("status-display");
-    const invStatus = document.getElementById("inv-status");
-    const alertContainer = document.getElementById("alert-container");
-
-    actionBtn.addEventListener("touchstart", function(e) {
-        e.preventDefault();
-        handleAction();
-    });
-    sellBtn.addEventListener("touchstart", function(e) {
-        e.preventDefault();
-        sellFish();
-    });
-
-    function handleAction() {
-        if (gameState === "idle") {
-            castLine();
-        } else if (gameState === "waiting") {
-            reeledEarly();
-        } else if (gameState === "nibble") {
-            catchFish();
-        }
+  while (attempt <= maxRetries) {
+    try {
+      const items = await generateQueries(userPrompt);
+      await animationPromise;
+      renderResults(items);
+      setStatus(`Found ${items.length} search ${items.length === 1 ? 'angle' : 'angles'}.`);
+      break;
+    } catch (err) {
+      if (err.isRateLimit && attempt < maxRetries) {
+        setStatus(ICON_SPIN + " " + err.message);
+        await sleep(Math.ceil(err.retryAfter) * 1000);
+        attempt++;
+        continue;
+      }
+      await animationPromise;
+      setStatus(ICON_WARN + " " + (err.message || "Something went wrong."), true);
+      break;
     }
+  }
 
-    // --- Game Logic Actions ---
-    function castLine() {
-        gameState = "casting";
-        statusDisplay.innerText = "Sinking into darkness...";
-        actionBtn.innerText = "WAITING...";
-        actionBtn.style.filter = "grayscale(0.7) brightness(0.5)";
+  distillEl.classList.remove('active');
+  goBtn.disabled = false;
+}
 
-        // Set position out in black water
-        bobber.position.set((Math.random() - 0.5) * 3.5, 0.1, -(Math.random() * 2.5 + 2));
-        bobberLight.position.copy(bobber.position);
-        bobberLight.intensity = 1.2;
-
-        gameState = "waiting";
-
-        const randomDelay = Math.random() * 3000 + 2500;
-        biteTimeout = setTimeout(fishBites, randomDelay);
-    }
-
-    function fishBites() {
-        gameState = "nibble";
-        statusDisplay.innerText = "⚠️ SOMETHING HAS IT! ⚠️";
-        actionBtn.innerText = "STRIKE!";
-        actionBtn.style.filter = "none";
-        actionBtn.style.border = "2px solid #ef4444";
-
-        windowTimeout = setTimeout(() => {
-            if (gameState === "nibble") {
-                fishEscaped();
-            }
-        }, 650); // Snappy iPad reaction window
-    }
-
-    function catchFish() {
-        clearTimeout(windowTimeout);
-        gameState = "idle";
-        bobber.position.y = -10; 
-        bobberLight.intensity = 0;
-
-        const roll = Math.random();
-        let fish;
-        if (roll < 0.50) fish = fishTypes[0];      
-        else if (roll < 0.82) fish = fishTypes[1]; 
-        else if (roll < 0.96) fish = fishTypes[2]; 
-        else fish = fishTypes[3];                 
-
-        inventory.push(fish);
-        spawnToast(`Pulled Up: ${fish.name}`, "#f87171");
-        updateTableUI();
-        resetControls();
-    }
-
-    function reeledEarly() {
-        clearTimeout(biteTimeout);
-        spawnToast("Disturbed the water...", "#94a3b8");
-        resetGame();
-    }
-
-    function fishEscaped() {
-        spawnToast("Dragged under...", "#64748b");
-        resetGame();
-    }
-
-    function resetGame() {
-        gameState = "idle";
-        bobber.position.y = -10;
-        bobberLight.intensity = 0;
-        resetControls();
-    }
-
-    function resetControls() {
-        statusDisplay.innerText = "💀 The Depths Await";
-        actionBtn.innerText = "CAST LINE";
-        actionBtn.style.filter = "none";
-        actionBtn.style.border = "2px solid #3f3f46";
-    }
-
-    function updateTableUI() {
-        if(inventory.length === 0) {
-            invStatus.innerHTML = `<span style="color: #64748b; font-style: italic;">The altar is bare...</span>`;
-            sellBtn.style.display = "none";
-            return;
-        }
-        
-        invStatus.innerHTML = "";
-        inventory.forEach(item => {
-            const span = document.createElement("span");
-            span.className = "fish-tag";
-            span.innerText = item.name;
-            invStatus.appendChild(span);
-        });
-        sellBtn.style.display = "inline-block";
-    }
-
-    function sellFish() {
-        if(inventory.length === 0) return;
-        let payout = 0;
-        inventory.forEach(item => payout += item.value);
-        
-        gold += payout;
-        goldDisplay.innerText = `🪙 Gold: ${gold}`;
-        spawnToast(`Tribute Accepted (+$${payout})`, "#fef08a");
-        
-        inventory = [];
-        updateTableUI();
-    }
-
-    function spawnToast(msg, color) {
-        const t = document.createElement("div");
-        t.className = "toast";
-        t.style.color = color;
-        t.innerText = msg;
-        alertContainer.appendChild(t);
-        setTimeout(() => t.remove(), 1500);
-    }
-
-    // --- Animation Loop ---
-    let clock = new THREE.Clock();
-
-    function animate() {
-        requestAnimationFrame(animate);
-        
-        const time = clock.getElapsedTime();
-
-        // Animate the ominous dark water surface ripples
-        if (waterWaterTexture) {
-            waterWaterTexture.offset.x = time * 0.015;
-            waterWaterTexture.offset.y = time * 0.01;
-        }
-
-        // Bobber float dynamics
-        if (gameState === "waiting") {
-            bobber.position.y = 0.04 + Math.sin(time * 3.5) * 0.02;
-            bobberLight.intensity = 1.0 + Math.sin(time * 6) * 0.3; // Eerie pulsing light
-        } else if (gameState === "nibble") {
-            bobber.position.y = -0.15 + Math.sin(time * 40) * 0.12; // Violent dynamic twitching
-            bobberLight.intensity = 2.0;
-        }
-
-        renderer.render(scene, camera);
-    }
-
-    window.addEventListener('resize', onWindowResize, false);
-    function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    animate();
+goBtn.addEventListener('click', handleGo);
+promptEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    handleGo();
+  }
+});
   </script>
 </body>
 
